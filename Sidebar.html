@@ -51,7 +51,7 @@
             <option style='font-family:"Source Code Pro";' value="Source Code Pro" selected>Source Code Pro</option>
             <option style='font-family:"Ubuntu Mono";' value="Ubuntu Mono">Ubuntu Mono</option>
           </select>
-          
+          <br>
           <b>Font Size</b>
           <select name="font_size" id="font_size_selector">
             <option value=8>8pt</option> 
@@ -118,11 +118,11 @@
       function runFormatting() {
         this.disabled = true;
         $('#error').remove();
-//        var fixedWidthFont = $('#fixed_width_font_selector option:selected').val();
-//        var fontSize = $('#font_size_selector option:selected').val();
-        var fixedWidthFont = "Consolas Mono";
-        var fontSize = 8;
+        var fixedWidthFont = $('#fixed_width_font_selector option:selected').val();
+        var fontSize = $('#font_size_selector option:selected').val();
+
         var savePrefs = $('#save-prefs').is(':checked');
+
         google.script.run
             .withSuccessHandler(
               function(textAndTranslation, element) {

@@ -171,55 +171,18 @@ function insertText(newText, fixedWidthFont, fontSize) {
         var startIndex = elements[i].getStartOffset();
         var endIndex = elements[i].getEndOffsetInclusive();
 
-        var remainingText = element.getText().substring(endIndex + 1);
+        element.setFontFamily(startIndex, endIndex, fixedWidthFont);
+        element.setFontSize(startIndex, endIndex, fontSize);
         
-        element.deleteText(startIndex, endIndex);
-        if (!replaced) {
-          element.insertText(startIndex, newText);
-          element.setFontFamily(fixedWidthFont);
-          replaced = true;
-        } else {
-          // This block handles a selection that ends with a partial element. We
-          // want to copy this partial text to the previous element so we don't
-          // have a line-break before the last partial.
-          var parent = element.getParent();
-          parent.getPreviousSibling().asText().appendText(remainingText);
-          // We cannot remove the last paragraph of a doc. If this is the case,
-          // just remove the text within the last paragraph instead.
-          if (parent.getNextSibling()) {
-            parent.removeFromParent();
-            parent.editAsText().setFontFamily(fixedWidthFont);
-          } else {
-            element.removeFromParent();
-            element.editAsText().setFontFamily(fixedWidthFont);
-          }
-        }
       } else {
-        var element = elements[i].getElement();
-        if (!replaced && element.editAsText) {
-          // Only translate elements that can be edited as text, removing other
-          // elements.
-          element.clear();
-          element.asText().setText(newText);
-          element.editAsText().setFontFamily(fixedWidthFont);
-          replaced = true;
-        } else {
-          // We cannot remove the last paragraph of a doc. If this is the case,
-          // just clear the element.
-          if (element.getNextSibling()) {
-            element.removeFromParent();
-          } else {
-            element.clear();
-          }
-        }
+        
+        var element = elements[i].getElement().asText();
+        
+        element.setFontFamily(startIndex, endIndex, fixedWidthFont);
+        element.setFontSize(startIndex, endIndex, fontSize);
       }
+      
     }
-  } else {
-    var cursor = DocumentApp.getActiveDocument().getCursor();
-    var surroundingText = cursor.getSurroundingText();
-    
-    surroundingText.editAsText().setFontFamily(fixedWidthFont);
-    
-    
+        
   }
 }

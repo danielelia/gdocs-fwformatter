@@ -67,11 +67,12 @@
 
         <div class="block">
           <input type="checkbox" id="save-prefs">
-          <label for="save-prefs">Use these languages by default</label>
+          <label for="save-prefs">Use these settings by default</label>
         </div>
 
+
        <div class="block" id="button-bar">
-          <button class="blue" id="run-translation">Translate</button>
+          <button class="blue" id="run-formatting">Format</button>
           <button id="insert-text">Insert</button>
         </div>
       </form>
@@ -115,11 +116,11 @@
        * Runs a server-side function to translate the user-selected text and update
        * the sidebar UI with the resulting translation.
        */
-      function runTranslation() {
+      function runFormatting() {
         this.disabled = true;
         $('#error').remove();
-        var origin = $('input[name=origin]:checked').val();
-        var dest = $('input[name=dest]:checked').val();
+        var fixedWidthFont = $('input[name=fixed_width_font]:checked').val();
+        var fontSize = $('input[name=font_size]:checked').val();
         var savePrefs = $('#save-prefs').is(':checked');
         google.script.run
             .withSuccessHandler(
@@ -133,7 +134,7 @@
                 element.disabled = false;
               })
             .withUserObject(this)
-            .getTextAndTranslation(origin, dest, savePrefs);
+            .getTextAndFormattedText(fixedWidthFont, fontSize, savePrefs);
       }
 
       /**

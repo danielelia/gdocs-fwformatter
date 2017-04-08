@@ -43,26 +43,24 @@
     <div class="sidebar branding-below">
       <form>
         <div class="block col-contain">
+        
           <b>Fixed Width Font</b>
-          <select name="fixed_width_font">
+          <select name="fixed_width_font" id="fixed_width_font_selector">
             <option style='font-family:"Consolas";' value="Consolas">Consolas</option>
             <option style='font-family:"Roboto Mono";' value="Roboto Mono">Roboto</option>
             <option style='font-family:"Source Code Pro";' value="Source Code Pro" selected>Source Code Pro</option>
             <option style='font-family:"Ubuntu Mono";' value="Ubuntu Mono">Ubuntu Mono</option>
           </select>
+          
           <b>Font Size</b>
-          <select name="font_size">
+          <select name="font_size" id="font_size_selector">
             <option value=8>8pt</option> 
             <option value=9>9pt</option>
             <option value=10>10pt</option>
             <option value=11>11pt</option>
             <option value=12>12pt</option>
           </select>
-        </div>
-
-        <div class="block form-group">
-          <label for="translated-text"><b>Translation</b></label>
-          <textarea class="width-100" id="translated-text" rows="10"></textarea>
+          
         </div>
 
         <div class="block">
@@ -91,25 +89,26 @@
        * user's origin and destination language preferences if previously set.
        */
       $(function() {
-        $('#run-translation').click(runTranslation);
+        $('#run-formatting').click(runFormatting);
         $('#insert-text').click(insertText);
+        
         google.script.run.withSuccessHandler(loadPreferences)
-            .withFailureHandler(showError).getPreferences();
+            .withFailureHandler(showMessage).getPreferences();
       });
 
       /**
        * Callback function that populates the origin and destination selection
        * boxes with user preferences from the server.
        *
-       * @param {Object} languagePrefs The saved origin and destination languages.
+       * @param {Object} fontPrefs The saved origin and destination languages.
        */
       function loadPreferences(fontPrefs) {
-        $('input:select[name="fixed_width_font"]')
+        $('select[name="fixed_width_font"]')
             .filter('[value=' + fontPrefs.fixedWidthFont + ']')
-            .attr('checked', true);
-        $('input:select[name="font_size"]')
+//            .attr('checked', true);
+        $('select[name="font_size"]')
             .filter('[value=' + fontPrefs.fontSize + ']')
-            .attr('checked', true);
+//            .attr('checked', true);
       }
 
       /**
@@ -119,52 +118,33 @@
       function runFormatting() {
         this.disabled = true;
         $('#error').remove();
-        var fixedWidthFont = $('input[name=fixed_width_font]:checked').val();
-        var fontSize = $('input[name=font_size]:checked').val();
+//        var fixedWidthFont = $('#fixed_width_font_selector option:selected').val();
+//        var fontSize = $('#font_size_selector option:selected').val();
+        var fixedWidthFont = "Consolas Mono";
+        var fontSize = 8;
         var savePrefs = $('#save-prefs').is(':checked');
         google.script.run
             .withSuccessHandler(
               function(textAndTranslation, element) {
-                $('#translated-text').val(textAndTranslation.translation);
+                showMessage("Success!", $('#button-bar'));
                 element.disabled = false;
               })
             .withFailureHandler(
               function(msg, element) {
-                showError(msg, $('#button-bar'));
+                showMessage(msg, $('#button-bar'));
                 element.disabled = false;
               })
             .withUserObject(this)
-            .getTextAndFormattedText(fixedWidthFont, fontSize, savePrefs);
-      }
-
-      /**
-       * Runs a server-side function to insert the translated text into the document
-       * at the user's cursor or selection.
-       */
-      function insertText() {
-        this.disabled = true;
-        $('#error').remove();
-        google.script.run
-            .withSuccessHandler(
-              function(returnSuccess, element) {
-                element.disabled = false;
-              })
-            .withFailureHandler(
-              function(msg, element) {
-                showError(msg, $('#button-bar'));
-                element.disabled = false;
-              })
-            .withUserObject(this)
-            .insertText($('#translated-text').val());
+            .insertFormattedText(fixedWidthFont, fontSize, savePrefs);
       }
 
       /**
        * Inserts a div that contains an error message after a given element.
-       *
+       *s
        * @param msg The error message to display.
        * @param element The element after which to display the error.
        */
-      function showError(msg, element) {
+      function showMessage(msg, element) {
         var div = $('<div id="error" class="error">' + msg + '</div>');
         $(element).after(div);
       }

@@ -124,11 +124,9 @@ function getPreferences() {
  *
  * @param {string} fixedWidthFont What fixed with font to convert the text into
  * @param {int} fontSize New size for the fixed width text
- * @param {boolean} savePrefs Whether to save the fontSize and fixedWidthFont prefs
- * @return {Object} Object containing the original text and the result of the
- *     translation.
+ * @param {boolean} savePrefs Whether to save the font size and fixed with font prefs
  */
-function getTextAndFormattedText(fixedWidthFont, fontSize, savePrefs) {
+function insertFormattedText(fixedWidthFont, fontSize, savePrefs) {  
   var result = {};
   var text = getSelectedText();
   result['text'] = text.join('\n');
@@ -139,9 +137,8 @@ function getTextAndFormattedText(fixedWidthFont, fontSize, savePrefs) {
     userProperties.setProperty('fixedWidthFont', fixedWidthFont);
   }
 
-  result['formattedText'] = formatText(result['text'], fixedWidthFont, fontSize);
-
-  return result;
+  insertText(text, fixedWidthFont, fontSize);
+  
 }
 
 /**
@@ -152,12 +149,14 @@ function getTextAndFormattedText(fixedWidthFont, fontSize, savePrefs) {
  * other elements.
  *
  * @param {string} newText The text with which to replace the current selection.
+ * @param {string} fixedWidthFont The font in question
+ * @param {int} fontSize
  */
-function insertText(newText) {
+function insertText(newText, fixedWidthFont, fontSize) {
   var selection = DocumentApp.getActiveDocument().getSelection();
   if (selection) {
     var replaced = false;
-    var elements = selection.getSelectedElements();
+    var elements = selection.getRangeElements();
     
     if (elements.length == 1 &&
         elements[0].getElement().getType() ==
@@ -166,15 +165,18 @@ function insertText(newText) {
     }
 
     for (var i = 0; i < elements.length; i++) {
+      
       if (elements[i].isPartial()) {
         var element = elements[i].getElement().asText();
         var startIndex = elements[i].getStartOffset();
         var endIndex = elements[i].getEndOffsetInclusive();
 
         var remainingText = element.getText().substring(endIndex + 1);
+        
         element.deleteText(startIndex, endIndex);
         if (!replaced) {
           element.insertText(startIndex, newText);
+          element.setFontFamily(fixedWidthFont);
           replaced = true;
         } else {
           // This block handles a selection that ends with a partial element. We
@@ -186,8 +188,10 @@ function insertText(newText) {
           // just remove the text within the last paragraph instead.
           if (parent.getNextSibling()) {
             parent.removeFromParent();
+            parent.editAsText().setFontFamily(fixedWidthFont);
           } else {
             element.removeFromParent();
+            element.editAsText().setFontFamily(fixedWidthFont);
           }
         }
       } else {
@@ -197,6 +201,7 @@ function insertText(newText) {
           // elements.
           element.clear();
           element.asText().setText(newText);
+          element.editAsText().setFontFamily(fixedWidthFont);
           replaced = true;
         } else {
           // We cannot remove the last paragraph of a doc. If this is the case,
@@ -211,54 +216,10 @@ function insertText(newText) {
     }
   } else {
     var cursor = DocumentApp.getActiveDocument().getCursor();
-    var surroundingText = cursor.getSurroundingText().getText();
-    var surroundingTextOffset = cursor.getSurroundingTextOffset();
-
-    // If the cursor follows or preceds a non-space character, insert a space
-    // between the character and the translation. Otherwise, just insert the
-    // translation.
-    if (surroundingTextOffset > 0) {
-      if (surroundingText.charAt(surroundingTextOffset - 1) != ' ') {
-        newText = ' ' + newText;
-      }
-    }
-    if (surroundingTextOffset < surroundingText.length) {
-      if (surroundingText.charAt(surroundingTextOffset) != ' ') {
-        newText += ' ';
-      }
-    }
-    cursor.insertText(newText);
+    var surroundingText = cursor.getSurroundingText();
+    
+    surroundingText.editAsText().setFontFamily(fixedWidthFont);
+    
+    
   }
-}
-
-
-/**
- * Given text, translate it from the origin language to the destination
- * language. The languages are notated by their two-letter short form. For
- * example, English is 'en', and Spanish is 'es'. The origin language may be
- * specified as an empty string to indicate that Google Translate should
- * auto-detect the language.
- *
- * @param {string} text text to format.
- * @param {string} fixedWidthFont The fixed width font that we'd like to use.
- * @param {int} fontSize The font size that we want to format it as.
- * @return {string} The result of the format adjustment.
- */
-function formatText(text, fixedWidthFont, fontSize) {
-  
-  try {
-  	text.getFontFamily(fixedWidthFont);
-  } catch {
-  	throw "Can't find the specified font family";
-  }
-
-  var newText = text.setFontFamily(fixedWidthFont);
-
-  try {
-  	newText.setFontSize(fontSize);
-  } catch {
-  	throw "The font size is not valid";
-  }
-  
-  return newText;
 }

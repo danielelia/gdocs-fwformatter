@@ -42,17 +42,15 @@
   <body>
     <div class="sidebar branding-below">
       <form>
-        <div class="block col-contain">
+        <b>Choose a style</b>
+        <div>
         
-          <b>Fixed Width Font</b>
           <select name="fixed_width_font" id="fixed_width_font_selector">
             <option style='font-family:"Consolas";' value="Consolas">Consolas</option>
             <option style='font-family:"Roboto Mono";' value="Roboto Mono">Roboto</option>
             <option style='font-family:"Source Code Pro";' value="Source Code Pro" selected>Source Code Pro</option>
             <option style='font-family:"Ubuntu Mono";' value="Ubuntu Mono">Ubuntu Mono</option>
           </select>
-          <br>
-          <b>Font Size</b>
           <select name="font_size" id="font_size_selector">
             <option value=8>8pt</option> 
             <option value=9>9pt</option>
@@ -60,9 +58,13 @@
             <option value=11>11pt</option>
             <option value=12>12pt</option>
           </select>
-          
         </div>
-
+        
+        <b>Preview</b>
+        <div class="block">
+          <span id="preview_span">jdoe@example-:~ lost \n lost: not found</span>
+        </div>
+       
         <div class="block">
           <input type="checkbox" id="save-prefs">
           <label for="save-prefs">Use these settings by default</label>
@@ -85,8 +87,14 @@
        */
       $(function() {
         $('#run-formatting').click(runFormatting);
-        $('#insert-text').click(insertText);
-        
+
+        //style the preview appropriately with a change handler        
+        $('#fixed_width_font_selector, #font_size_selector').change(function() {
+          var selectedFontFamily = $("option:selected", this).val();
+          var selectedFontSize = parseInt($("option:selected", this).val());
+          $("#preview_span").css({'font-family': selectedFontFamily,
+                                  'font-size' : selectedFontSize});
+        });        
         google.script.run.withSuccessHandler(loadPreferences)
             .withFailureHandler(showMessage).getPreferences();
       });
@@ -99,11 +107,14 @@
        */
       function loadPreferences(fontPrefs) {
         $('select[name="fixed_width_font"]')
-            .filter('[value=' + fontPrefs.fixedWidthFont + ']')
+            .filter('[value=' + fontPrefs.fixedWidthFont + ']');
 //            .attr('checked', true);
         $('select[name="font_size"]')
-            .filter('[value=' + fontPrefs.fontSize + ']')
+            .filter('[value=' + fontPrefs.fontSize + ']');
 //            .attr('checked', true);
+        // execute the change handler once to update Preview field
+        $('#fixed_width_font_selector, #font_size_selector').trigger("change");
+
       }
 
       /**

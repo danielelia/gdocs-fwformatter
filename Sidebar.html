@@ -115,7 +115,6 @@
         $('#error').remove();
         var fixedWidthFont = $('#fixed_width_font_selector option:selected').val();
         var fontSize = $('#font_size_selector option:selected').val();
-
         var savePrefs = $('#save-prefs').is(':checked');
 
         google.script.run
@@ -143,6 +142,7 @@
         var div = $('<div id="error" class="error">' + msg + '</div>');
         $(element).after(div);
       }
+      
     </script>
   </body>
 </html>

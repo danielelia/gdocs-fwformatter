@@ -152,8 +152,9 @@ function insertFormattedText(fixedWidthFont, fontSize, savePrefs) {
  * @param {string} fixedWidthFont The font in question
  * @param {int} fontSize
  */
-function insertText(newText, fixedWidthFont, fontSize) {
+function insertText(newText, fixedWidthFont, fontSizeString) {
   var selection = DocumentApp.getActiveDocument().getSelection();
+  var fontSize = parseInt(fontSizeString);
   if (selection) {
     var replaced = false;
     var elements = selection.getRangeElements();
@@ -171,14 +172,14 @@ function insertText(newText, fixedWidthFont, fontSize) {
         var startIndex = elements[i].getStartOffset();
         var endIndex = elements[i].getEndOffsetInclusive();
 
-        element.setFontFamily(startIndex, endIndex, fixedWidthFont);
+        element.setFontFamily(startIndex, endIndex, fixedWidthFont)
         element.setFontSize(startIndex, endIndex, fontSize);
         
       } else {
         
         var element = elements[i].getElement().asText();
         
-        element.setFontFamily(startIndex, endIndex, fixedWidthFont);
+        element.setFontFamily(startIndex, endIndex, fixedWidthFont)
         element.setFontSize(startIndex, endIndex, fontSize);
       }
       

@@ -131,7 +131,7 @@
         google.script.run
             .withSuccessHandler(
               function(textAndTranslation, element) {
-                showMessage("Success!", $('#button-bar'));
+//                showMessage("Success!", $('#button-bar'));
                 element.disabled = false;
               })
             .withFailureHandler(

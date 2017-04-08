@@ -179,8 +179,8 @@ function insertText(newText, fixedWidthFont, fontSizeString) {
         
         var element = elements[i].getElement().asText();
         
-        element.setFontFamily(startIndex, endIndex, fixedWidthFont)
-        element.setFontSize(startIndex, endIndex, fontSize);
+        element.setFontFamily(fixedWidthFont)
+        element.setFontSize(fontSize);
       }
       
     }

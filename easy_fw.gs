@@ -55,7 +55,7 @@ function onInstall(e) {
  */
 function showSidebar() {
   var ui = HtmlService.createHtmlOutputFromFile('Sidebar')
-      .setTitle('Translate');
+      .setTitle('Fixed Width Formatter');
   DocumentApp.getUi().showSidebar(ui);
 }
 

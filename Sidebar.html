@@ -52,17 +52,17 @@
             <option style='font-family:"Ubuntu Mono";' value="Ubuntu Mono">Ubuntu Mono</option>
           </select>
           <select name="font_size" id="font_size_selector">
-            <option value=8>8pt</option> 
-            <option value=9>9pt</option>
-            <option value=10>10pt</option>
-            <option value=11>11pt</option>
-            <option value=12>12pt</option>
+            <option value='8'>8pt</option> 
+            <option value='9'>9pt</option>
+            <option value='10'>10pt</option>
+            <option value='11'>11pt</option>
+            <option value='12'>12pt</option>
           </select>
         </div>
         
         <b>Preview</b>
         <div class="block">
-          <span id="preview_span">jdoe@example-:~ lost \n lost: not found</span>
+          <span id="preview_span">jdoe@example-:~ lost</span>
         </div>
        
         <div class="block">
@@ -82,14 +82,15 @@
     </script>
     <script>
       /**
-       * On document load, assign click handlers to each button and try to load the
-       * user's origin and destination language preferences if previously set.
+       * On document load, assign click handlers to the format button and try to load the
+       * user preferences if previously set.
        */
       $(function() {
         $('#run-formatting').click(runFormatting);
 
         //style the preview appropriately with a change handler        
         $('#fixed_width_font_selector, #font_size_selector').change(function() {
+          console.log("Change handler triggered");
           var selectedFontFamily = $("option:selected", this).val();
           var selectedFontSize = parseInt($("option:selected", this).val());
           $("#preview_span").css({'font-family': selectedFontFamily,
@@ -106,14 +107,27 @@
        * @param {Object} fontPrefs The saved origin and destination languages.
        */
       function loadPreferences(fontPrefs) {
-        $('select[name="fixed_width_font"]')
-            .filter('[value=' + fontPrefs.fixedWidthFont + ']');
-//            .attr('checked', true);
-        $('select[name="font_size"]')
-            .filter('[value=' + fontPrefs.fontSize + ']');
-//            .attr('checked', true);
+      
+        console.log("Entered loadPreferences");
+        var fontChanged = $.Deferred();
+        var fontSizeChanged = $.Deferred();
+        
         // execute the change handler once to update Preview field
-        $('#fixed_width_font_selector, #font_size_selector').trigger("change");
+        $.when(fontChanged, fontSizeChanged).done(function(){
+             $('#fixed_width_font_selector, #font_size_selector').trigger("change");
+             console.log("Added when Handler");
+             });
+        
+        $('#fixed_width_font_selector')
+            .val(fontPrefs.fixedWidthFont)
+            .attr('checked', true);
+        fontChanged.resolve();
+        
+        $('#font_size_selector')
+            .val(fontPrefs.fixedWidthFontSize)
+            .attr('checked', true);
+        fontSizeChanged.resolve();
+
 
       }
 
@@ -124,14 +138,14 @@
       function runFormatting() {
         this.disabled = true;
         $('#error').remove();
+        
         var fixedWidthFont = $('#fixed_width_font_selector option:selected').val();
-        var fontSize = $('#font_size_selector option:selected').val();
+        var fixedWidthFontSize = $('#font_size_selector option:selected').val();
         var savePrefs = $('#save-prefs').is(':checked');
 
         google.script.run
             .withSuccessHandler(
-              function(textAndTranslation, element) {
-//                showMessage("Success!", $('#button-bar'));
+              function(msg, element) {
                 element.disabled = false;
               })
             .withFailureHandler(
@@ -140,7 +154,7 @@
                 element.disabled = false;
               })
             .withUserObject(this)
-            .insertFormattedText(fixedWidthFont, fontSize, savePrefs);
+            .formatText(fixedWidthFont, fixedWidthFontSize, savePrefs);
       }
 
       /**

@@ -59,46 +59,6 @@ function showSidebar() {
   DocumentApp.getUi().showSidebar(ui);
 }
 
-/**
- * Gets the text the user has selected. If there is no selection,
- * this function displays an error message.
- *
- * @return {Array.<string>} The selected text.
- */
-function getSelectedText() {
-  var selection = DocumentApp.getActiveDocument().getSelection();
-  if (selection) {
-    var text = [];
-    var elements = selection.getSelectedElements();
-    for (var i = 0; i < elements.length; i++) {
-      if (elements[i].isPartial()) {
-        var element = elements[i].getElement().asText();
-        var startIndex = elements[i].getStartOffset();
-        var endIndex = elements[i].getEndOffsetInclusive();
-
-        text.push(element.getText().substring(startIndex, endIndex + 1));
-      } else {
-        var element = elements[i].getElement();
-        // Only translate elements that can be edited as text; skip images and
-        // other non-text elements.
-        if (element.editAsText) {
-          var elementText = element.asText().getText();
-          // This check is necessary to exclude images, which return a blank
-          // text element.
-          if (elementText != '') {
-            text.push(elementText);
-          }
-        }
-      }
-    }
-    if (text.length == 0) {
-      throw 'Please select some text.';
-    }
-    return text;
-  } else {
-    throw 'Please select some text.';
-  }
-}
 
 // *
 //  * Gets the stored user preferences for the origin and destination languages,
@@ -113,32 +73,9 @@ function getPreferences() {
   var userProperties = PropertiesService.getUserProperties();
   var fontPrefs = {
     fixedWidthFont: userProperties.getProperty('fixedWidthFont'),
-    fontSize: userProperties.getProperty('fontSize')
+    fixedWidthFontSize: userProperties.getProperty('fixedWidthFontSize')
   };
   return fontPrefs;
-}
-
-/**
- * Gets the user-selected text and changes the fonted to a specified fixed-
- * with one, as well as changing it to a small text size.
- *
- * @param {string} fixedWidthFont What fixed with font to convert the text into
- * @param {int} fontSize New size for the fixed width text
- * @param {boolean} savePrefs Whether to save the font size and fixed with font prefs
- */
-function insertFormattedText(fixedWidthFont, fontSize, savePrefs) {  
-  var result = {};
-  var text = getSelectedText();
-  result['text'] = text.join('\n');
-
-  if (savePrefs == true) {
-    var userProperties = PropertiesService.getUserProperties();
-    userProperties.setProperty('fontSize', fontSize);
-    userProperties.setProperty('fixedWidthFont', fixedWidthFont);
-  }
-
-  insertText(text, fixedWidthFont, fontSize);
-  
 }
 
 /**
@@ -152,9 +89,16 @@ function insertFormattedText(fixedWidthFont, fontSize, savePrefs) {
  * @param {string} fixedWidthFont The font in question
  * @param {int} fontSize
  */
-function insertText(newText, fixedWidthFont, fontSizeString) {
+function formatText(fixedWidthFont, fixedWidthFontSize, savePrefs) {
   var selection = DocumentApp.getActiveDocument().getSelection();
-  var fontSize = parseInt(fontSizeString);
+  var fontSize = parseInt(fixedWidthFontSize);
+  
+  if (savePrefs == true) {
+    var userProperties = PropertiesService.getUserProperties();
+    userProperties.setProperty('fixedWidthFont', fixedWidthFont);
+    userProperties.setProperty('fixedWidthFontSize', fixedWidthFontSize);
+  }
+  
   if (selection) {
     var replaced = false;
     var elements = selection.getRangeElements();

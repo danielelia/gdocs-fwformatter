@@ -1,5 +1,5 @@
 /**
- *  Pretty Code Add-On for Google Docs
+ *  Fixed Width Formatter Add-On for Google Docs
  *
  *  adapted from Google's "Quickstart: Add-on for Google Docs"
  *  Tutorial at https://developers.google.com/apps-script/quickstart/docs
@@ -60,15 +60,15 @@ function showSidebar() {
 }
 
 
-// *
-//  * Gets the stored user preferences for the origin and destination languages,
-//  * if they exist.
-//  * This method is only used by the regular add-on, and is never called by
-//  * the mobile add-on version.
-//  *
-//  * @return {Object} The user's origin and destination language preferences, if
-//  *     they exist.
- 
+/*
+ * Gets the stored user preferences for the font size and family,
+ * if they exist.
+ * This method is only used by the regular add-on, and is never called by
+ * the mobile add-on version.
+ *
+ * @return {Object} The user's font and size preferences, if
+ *     they exist.
+ */
 function getPreferences() {
   var userProperties = PropertiesService.getUserProperties();
   var fontPrefs = {
@@ -79,15 +79,12 @@ function getPreferences() {
 }
 
 /**
- * Replaces the text of the current selection with the provided text, or
- * inserts text at the current cursor location. (There will always be either
- * a selection or a cursor.) If multiple elements are selected, only inserts the
- * translated text in the first element that can contain text and removes the
- * other elements.
+ * Formats the text selection using the font size and font family specified.
+ * Saves the user's preferences in the backend if so desired.
  *
- * @param {string} newText The text with which to replace the current selection.
- * @param {string} fixedWidthFont The font in question
- * @param {int} fontSize
+ * @param {string} fixedWidthFont The new font to be used for the selection.
+ * @param {string} fixedWidthFontSize The font size to use for the selection.
+ * @param {boolean} savePrefs Whether to save the preferences for future use or not.
  */
 function formatText(fixedWidthFont, fixedWidthFontSize, savePrefs) {
   var selection = DocumentApp.getActiveDocument().getSelection();

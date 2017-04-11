@@ -4,6 +4,9 @@
     <base target="_top">
     <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
     <!-- The CSS package above applies Google styling to buttons and other elements. -->
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Ubuntu+Mono|Source+Code+Pro|Roboto+Mono" />
+    <!-- Gets the appropriate fixed-width fonts -->
+
 
     <style>
     .branding-below {
@@ -30,7 +33,7 @@
       vertical-align: middle;
     }
 
-    .radio-spacer {
+    .spacer {
       height: 20px;
     }
 
@@ -46,10 +49,10 @@
         <div>
         
           <select name="fixed_width_font" id="fixed_width_font_selector">
-            <option style='font-family:"Consolas";' value="Consolas">Consolas</option>
-            <option style='font-family:"Roboto Mono";' value="Roboto Mono">Roboto</option>
-            <option style='font-family:"Source Code Pro";' value="Source Code Pro" selected>Source Code Pro</option>
-            <option style='font-family:"Ubuntu Mono";' value="Ubuntu Mono">Ubuntu Mono</option>
+            <option value="Consolas">Consolas</option>
+            <option value="Roboto Mono">Roboto</option>
+            <option value="Source Code Pro">Source Code Pro</option>
+            <option value="Ubuntu Mono">Ubuntu Mono</option>
           </select>
           <select name="font_size" id="font_size_selector">
             <option value='8'>8pt</option> 
@@ -60,9 +63,12 @@
           </select>
         </div>
         
-        <b>Preview</b>
+        <div class="spacer"></div>
+        
+        
         <div class="block">
-          <span id="preview_span">jdoe@example-:~ lost</span>
+          <b>Preview</b>
+          <p id="preview_span">jdoe@example-:~ lost<br>lost: not found</p>
         </div>
        
         <div class="block">
@@ -88,8 +94,7 @@
       $(function() {
         $('#run-formatting').click(runFormatting);
 
-        //add a change handler to style the preview as the font and size
-        //are changed.    
+        //style the preview appropriately with a change handler        
         $('#fixed_width_font_selector, #font_size_selector').change(function() {
           var selectedFontFamily = $("option:selected", this).val();
           var selectedFontSize = parseInt($("option:selected", this).val());
@@ -101,10 +106,10 @@
       });
 
       /**
-       * Callback function that populates the font and font size
+       * Callback function that populates the origin and destination selection
        * boxes with user preferences from the server.
        *
-       * @param {Object} fontPrefs The saved font and font size.
+       * @param {Object} fontPrefs The saved origin and destination languages.
        */
       function loadPreferences(fontPrefs) {
       
@@ -112,10 +117,10 @@
         var fontChanged = $.Deferred();
         var fontSizeChanged = $.Deferred();
         
-        // execute the change handler when the values are updated once to 
-        // style the preview appropriately 
+        // execute the change handler once to update Preview field
         $.when(fontChanged, fontSizeChanged).done(function(){
              $('#fixed_width_font_selector, #font_size_selector').trigger("change");
+             console.log("Added when Handler");
              });
         
         $('#fixed_width_font_selector')
@@ -132,8 +137,8 @@
       }
 
       /**
-       * Runs the server-side function to reformat the text, given the preferences
-       * as specified by the user.
+       * Runs a server-side function to translate the user-selected text and update
+       * the sidebar UI with the resulting translation.
        */
       function runFormatting() {
         this.disabled = true;
